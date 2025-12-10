@@ -16,6 +16,8 @@ public class ActiveState implements AccountState {
         account.setBalance(account.getBalance() + amount);
         account.addTransaction(new Transaction("Deposit", amount));
         System.out.printf("Deposit successful: +%.2f | New balance: %.2f%n", amount, account.getBalance());
+        account.addTransaction(new Transaction("Deposit", amount));
+        account.persist();
     }
 
     @Override
@@ -39,6 +41,8 @@ public class ActiveState implements AccountState {
         } else {
             throw new IllegalStateException("Insufficient funds");
         }
+        account.addTransaction(new Transaction("Withdrawal", amount));
+        account.persist();
     }
 
     @Override

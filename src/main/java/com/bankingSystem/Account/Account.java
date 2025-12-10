@@ -66,6 +66,7 @@ public abstract class Account implements AccountComponent {
     public void setState(AccountState state) { this.state = state; }
     public List<Transaction> getTransactionHistory() { return new ArrayList<>(transactionHistory); }
     public void setInterestStrategy(InterestStrategy strategy) { this.interestStrategy = strategy; }
+    public String getOwnerId() { return ownerId; }
 
     // Composite methods
     public void showDetails() {
@@ -78,5 +79,52 @@ public abstract class Account implements AccountComponent {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" + accountNumber + "] Balance: " + balance;
+    }
+
+    public void persist() {
+        new com.bankingSystem.Database.AccountDAO().saveAccount(this);
+    }
+    protected void modify(String field, String newValue) {
+        switch (field.toLowerCase()) {
+            case "owner" -> {
+                String old = this.ownerId;
+                this.ownerId = newValue;
+                System.out.println("Owner changed: " + old + " → " + newValue);
+            }
+            case "risklevel" -> {
+                if (this instanceof InvestmentAccount inv) {
+                    // نستخدم reflection مؤقتًا (لأن riskLevel private)
+                    try {
+                        var f = InvestmentAccount.class.getDeclaredField("riskLevel");
+                        f.setAccessible(true);
+                        f.set(inv, newValue.toUpperCase());
+                        System.out.println("Risk level updated to: " + newValue);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to update risk level", e);
+                    }
+                } else {
+                    throw new IllegalStateException("Only InvestmentAccount has risk level");
+                }
+            }
+            case "overdraftlimit" -> {
+                if (this instanceof CheckingAccount chk) {
+                    try {
+                        var f = CheckingAccount.class.getDeclaredField("overdraftLimit");
+                        f.setAccessible(true);
+                        f.setDouble(chk, Double.parseDouble(newValue));
+                        System.out.println("Overdraft limit updated to: " + newValue);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to update overdraft limit", e);
+                    }
+                } else {
+                    throw new IllegalStateException("Only CheckingAccount has overdraft limit");
+                }
+            }
+            default -> throw new IllegalArgumentException("Unsupported field: " + field);
+        }
+
+        // حفظ التغييرات تلقائيًا في الـ DB
+        this.persist(); // ← الدالة اللي أنت أضفتها قبل كده
+        System.out.println("Account modified and saved: " + getAccountNumber());
     }
 }

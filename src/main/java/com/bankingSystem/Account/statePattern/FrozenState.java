@@ -11,6 +11,8 @@ public class FrozenState implements AccountState {
         account.setBalance(account.getBalance() + amount);
         account.addTransaction(new Transaction("Deposit (Frozen)", amount)); // Ensured addition
         System.out.println("Deposit allowed in frozen account: +" + amount);
+        account.addTransaction(new Transaction("Deposit", amount));
+        account.persist();
     }
 
     @Override
