@@ -5,7 +5,7 @@ import com.bankingSystem.Interest.LoanInterest;
 import com.bankingSystem.Transaction.Transaction;
 
 public class LoanAccount extends Account {
-    private double loanAmount;
+    public double loanAmount;
 
     public LoanAccount(String accountNumber, String ownerId, double loanAmount) {
         super(accountNumber, ownerId);

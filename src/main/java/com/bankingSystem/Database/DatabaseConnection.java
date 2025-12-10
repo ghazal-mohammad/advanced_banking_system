@@ -12,8 +12,7 @@ public class DatabaseConnection {
     private DatabaseConnection() {
         try {
             // H2 in-memory DB (يمكن تغيير إلى file:./bank.db للحفظ الدائم)
-            connection = DriverManager.getConnection("jdbc:h2:mem:bankdb;DB_CLOSE_DELAY=-1", "sa", "");
-            initializeDatabase(); // إنشاء الجداول
+            connection = DriverManager.getConnection("jdbc:h2:./data/bank;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE", "sa", "");            initializeDatabase(); // إنشاء الجداول
         } catch (SQLException e) {
             throw new RuntimeException("Error connecting to database", e);
         }

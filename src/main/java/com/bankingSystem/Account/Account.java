@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class Account implements AccountComponent {
-    protected String accountId;
-    protected String accountNumber;
-    protected double balance;
-    protected LocalDateTime creationDate;
-    protected String ownerId;
-    protected AccountState state;
-    protected InterestStrategy interestStrategy;
-    protected List<Transaction> transactionHistory = new ArrayList<>();
+    public String accountId;
+    public String accountNumber;
+    public double balance;
+    public LocalDateTime creationDate;
+    public String ownerId;
+    public AccountState state;
+    public InterestStrategy interestStrategy;
+    public List<Transaction> transactionHistory = new ArrayList<>();
 
     public Account(String accountNumber, String ownerId) {
         this.accountId = UUID.randomUUID().toString();
@@ -126,5 +126,20 @@ public abstract class Account implements AccountComponent {
         // حفظ التغييرات تلقائيًا في الـ DB
         this.persist(); // ← الدالة اللي أنت أضفتها قبل كده
         System.out.println("Account modified and saved: " + getAccountNumber());
+    }
+    public void updateOwner(String newOwnerId) {
+        if (newOwnerId == null || newOwnerId.trim().isEmpty()) {
+            throw new IllegalArgumentException("New owner ID cannot be empty");
+        }
+        String oldOwnerId = this.ownerId;
+        this.ownerId = newOwnerId;
+
+        // Audit Log مهم جدًا في البنوك
+        System.out.println("Account ownership changed: " + oldOwnerId + " → " + newOwnerId
+                + " | Account: " + getAccountNumber()
+                + " | Time: " + LocalDateTime.now());
+
+        // حفظ التغيير فورًا في قاعدة البيانات
+        persist(); // ← تستدعي AccountDAO.saveAccount(this)
     }
 }

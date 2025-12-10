@@ -86,31 +86,31 @@ public class TransactionService {
     }
 
     // === طريقة إضافية للموافقة اليدوية من المدير (تُستدعى من Bank) ===
-    public void approvePendingTransaction(String transactionId, boolean approve) {
-        Transaction tx = transactionDAO.loadTransactions(null).stream()
-                .filter(t -> t.getTransactionId().equals(transactionId))
-                .findFirst()
-                .orElse(null);
-        if (tx == null || !tx.isPendingManagerApproval()) {
-            System.out.println("Transaction not found or not pending approval.");
-            return;
-        }
-        if (approve) {
-            tx.setStatus("APPROVED");
-            Account from = tx.getFromAccount() != null ? Bank.getInstance().getAccount(tx.getFromAccount()) : null;
-            Account to = tx.getToAccount() != null ? Bank.getInstance().getAccount(tx.getToAccount()) : null;
-            executeOperation(tx, from, to);
-            tx.setStatus("COMPLETED");
-
-            if (from != null) { from.addTransaction(tx); from.persist(); }
-            if (to != null)   { to.addTransaction(tx);   to.persist(); }
-
-            transactionDAO.saveTransaction(tx); // تحديث الحالة في الـ DB
-            System.out.println("Manager APPROVED & EXECUTED transaction: " + transactionId);
-        } else {
-            tx.setStatus("REJECTED_BY_MANAGER");
-            transactionDAO.saveTransaction(tx);
-            System.out.println("Manager REJECTED transaction: " + transactionId);
-        }
-    }
+//    public void approvePendingTransaction(String transactionId, boolean approve) {
+//        Transaction tx = transactionDAO.loadTransactions(null).stream()
+//                .filter(t -> t.getTransactionId().equals(transactionId))
+//                .findFirst()
+//                .orElse(null);
+//        if (tx == null || !tx.isPendingManagerApproval()) {
+//            System.out.println("Transaction not found or not pending approval.");
+//            return;
+//        }
+//        if (approve) {
+//            tx.setStatus("APPROVED");
+//            S from = tx.getFromAccount() ;
+//            Account to = tx.getToAccount() != null ? Bank.getInstance().getAccount(tx.getToAccount()) : null;
+//            executeOperation(tx, from, to);
+//            tx.setStatus("COMPLETED");
+//
+//            if (from != null) { from.addTransaction(tx); from.persist(); }
+//            if (to != null)   { to.addTransaction(tx);   to.persist(); }
+//
+//            transactionDAO.saveTransaction(tx); // تحديث الحالة في الـ DB
+//            System.out.println("Manager APPROVED & EXECUTED transaction: " + transactionId);
+//        } else {
+//            tx.setStatus("REJECTED_BY_MANAGER");
+//            transactionDAO.saveTransaction(tx);
+//            System.out.println("Manager REJECTED transaction: " + transactionId);
+//        }
+//    }
 }
