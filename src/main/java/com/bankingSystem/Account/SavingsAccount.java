@@ -11,6 +11,6 @@ public class SavingsAccount extends Account {
 
     @Override
     public double calculateInterest() {
-        return interestStrategy.calculateInterest(balance); // يرجع double
+        return interestStrategy.calculateInterest(balance); // Return double
     }
 }

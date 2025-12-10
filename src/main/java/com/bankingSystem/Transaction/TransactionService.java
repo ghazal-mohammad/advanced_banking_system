@@ -23,21 +23,25 @@ public class TransactionService {
         large.setNext(manager);
     }
 
-    public void processTransaction(TransactionStrategy strategy, Account from, Account to, double amount) {
-        Transaction tx = new Transaction(strategy instanceof TransferStrategy ? "TRANSFER" :
-                strategy instanceof DepositStrategy ? "DEPOSIT" : "WITHDRAW", amount);
+    // اجعل TransactionService هو المسؤول الوحيد عن تنفيذ المعاملة بعد الموافقة
+    public void processTransaction(Account from, Account to, double amount, String type) {
+        Transaction tx = new Transaction(type, amount,
+                from != null ? from.getAccountNumber() : null,
+                to != null ? to.getAccountNumber() : null);
 
-        if (from != null) tx = new Transaction(tx.getType(), amount, from.getAccountNumber(), to != null ? to.getAccountNumber() : null);
+        approvalChain.handle(tx);  // Chain of Responsibility
 
-        // Chain of Responsibility
-        approvalChain.handle(tx);
+        if (tx.isApproved()) {
+            if ("DEPOSIT".equals(type))      to.deposit(amount);
+            if ("WITHDRAW".equals(type))     from.withdraw(amount);
+            if ("TRANSFER".equals(type)) {
+                from.withdraw(amount);
+                to.deposit(amount);
+            }
 
-        if (tx.getStatus().contains("APPROVED") || tx.getStatus().contains("COMPLETED")) {
-            strategy.execute(from, to, amount, tx);
+            tx.setStatus("COMPLETED");
             if (from != null) from.addTransaction(tx);
-            if (to != null && strategy instanceof DepositStrategy) to.addTransaction(tx);
-        } else {
-            System.out.println("Transaction blocked: " + tx.getStatus());
+            if (to != null)   to.addTransaction(tx);
         }
     }
 }

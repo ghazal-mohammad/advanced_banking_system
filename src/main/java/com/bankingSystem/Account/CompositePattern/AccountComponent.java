@@ -1,5 +1,4 @@
-// src/main/java/com/bank/account/composite/AccountComponent.java
-
+// src/main/java/com/bankingSystem/Account/CompositePattern/AccountComponent.java
 package com.bankingSystem.Account.CompositePattern;
 
 public interface AccountComponent {
@@ -7,12 +6,12 @@ public interface AccountComponent {
     void showDetails();
     double getTotalBalance();
 
-    // للـ Composite فقط
+    // For Composite only
     default void add(AccountComponent component) {
-        throw new UnsupportedOperationException("لا يمكن إضافة حساب فرعي لهذا النوع");
+        throw new UnsupportedOperationException("Cannot add sub-account to this type");
     }
 
     default void remove(AccountComponent component) {
-        throw new UnsupportedOperationException("لا يمكن حذف حساب فرعي من هذا النوع");
+        throw new UnsupportedOperationException("Cannot remove sub-account from this type");
     }
 }

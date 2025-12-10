@@ -1,7 +1,5 @@
-// وأخيرًا نعدل ActiveState.java عشان يكون كامل ومتوازن
-// ActiveState.java (محدث ومكتمل)
+// src/main/java/com/bankingSystem/Account/statePattern/ActiveState.java
 package com.bankingSystem.Account.statePattern;
-
 
 import com.bankingSystem.Account.Account;
 import com.bankingSystem.Account.CheckingAccount;
@@ -9,9 +7,12 @@ import com.bankingSystem.Transaction.Transaction;
 
 public class ActiveState implements AccountState {
 
+    private static final double MAX_DEPOSIT_LIMIT = 10000.0; // Added: Security validation to prevent money laundering
+
     @Override
     public void deposit(Account account, double amount) {
         if (amount <= 0) throw new IllegalArgumentException("Deposit amount must be positive");
+        if (amount > MAX_DEPOSIT_LIMIT) throw new IllegalArgumentException("Deposit exceeds limit: " + MAX_DEPOSIT_LIMIT);
         account.setBalance(account.getBalance() + amount);
         account.addTransaction(new Transaction("Deposit", amount));
         System.out.printf("Deposit successful: +%.2f | New balance: %.2f%n", amount, account.getBalance());
@@ -21,7 +22,7 @@ public class ActiveState implements AccountState {
     public void withdraw(Account account, double amount) {
         if (amount <= 0) throw new IllegalArgumentException("Withdrawal amount must be positive");
 
-        // دعم Overdraft للحساب الجاري فقط
+        // Support Overdraft for CheckingAccount only
         if (account instanceof CheckingAccount checking) {
             if (checking.canOverdraft(amount)) {
                 account.setBalance(account.getBalance() - amount);

@@ -1,5 +1,4 @@
-// src/main/java/com/bank/account/composite/AccountGroup.java
-
+// src/main/java/com/bankingSystem/Account/CompositePattern/AccountGroup.java
 package com.bankingSystem.Account.CompositePattern;
 
 import java.util.ArrayList;
@@ -32,15 +31,15 @@ public class AccountGroup implements AccountComponent {
     @Override
     public void showDetails() {
         System.out.println("════════════════════════════════════════════════");
-        System.out.println(" حساب جماعي: " + groupName);
-        System.out.println(" المعرف: " + groupId);
-        System.out.println(" عدد الحسابات الفرعية: " + children.size() + " حساب");
+        System.out.println("Group Account: " + groupName);
+        System.out.println("ID: " + groupId);
+        System.out.println("Number of Sub-Accounts: " + children.size());
         System.out.println("────────────────────────────────────────────────");
         for (AccountComponent component : children) {
             component.showDetails();
         }
         System.out.println("────────────────────────────────────────────────");
-        System.out.printf(" إجمالي الرصيد في المجموعة: %,.2f جنيه%n", getTotalBalance());
+        System.out.printf("Total Balance in Group: %,.2f%n", getTotalBalance());
         System.out.println("════════════════════════════════════════════════\n");
     }
 
@@ -50,7 +49,9 @@ public class AccountGroup implements AccountComponent {
                 .mapToDouble(AccountComponent::getTotalBalance)
                 .sum();
     }
-//
-//    // === Getters (اختياري للاستخدام المستقبلي) ===
-//    public String getGroupId()
+
+    // Added: Getter for children (for Reports or Inquiries)
+    public List<AccountComponent> getChildren() {
+        return new ArrayList<>(children);
+    }
 }

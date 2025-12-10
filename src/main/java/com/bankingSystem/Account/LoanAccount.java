@@ -8,22 +8,22 @@ public class LoanAccount extends Account {
     private double loanAmount;
 
     public LoanAccount(String accountNumber, String ownerId, double loanAmount) {
-        super(accountNumber, ownerId); // Constructor صح
+        super(accountNumber, ownerId);
         this.loanAmount = loanAmount;
-        this.balance = -loanAmount; // رصيد سالب للقرض
+        this.balance = -loanAmount; // Negative balance for loan
         this.interestStrategy = new LoanInterest(); // Strategy Pattern
     }
 
     @Override
     public double calculateInterest() {
-        return interestStrategy.calculateInterest(balance); // يرجع double
+        return interestStrategy.calculateInterest(balance); // Return double
     }
 
     public void makePayment(double amount) {
         if (amount > 0) {
             balance += amount;
             addTransaction(new Transaction("Loan Payment", amount));
-            notifyObservers("دفعة قرض: " + amount);
+            notifyObservers("Loan payment: " + amount);
         }
     }
 }

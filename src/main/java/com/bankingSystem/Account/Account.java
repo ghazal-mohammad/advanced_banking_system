@@ -31,7 +31,7 @@ public abstract class Account implements AccountComponent {
         this.state = new ActiveState();
     }
 
-    // Abstract method – يجب override في الـ subclasses لترجع double
+    // Abstract method - must be overridden in subclasses to return double
     public abstract double calculateInterest();
 
     // State Pattern methods
@@ -48,14 +48,14 @@ public abstract class Account implements AccountComponent {
     public void activate() { state.activate(this); }
     public void close() { state.close(this); }
 
-    // Transaction methods (بدل addToHistory)
+    // Transaction methods
     public void addTransaction(Transaction transaction) {
         transactionHistory.add(transaction);
     }
 
-    // Observer stub (للـ Notification – يمكن توسيع لاحقًا)
+    // Observer stub (for Notification - can be extended later for full Observer Pattern)
     public void notifyObservers(String message) {
-        // هنا نضيف Observer Pattern لاحقًا
+        // Here we can add full Observer Pattern later
         System.out.println("Notification: " + message);
     }
 

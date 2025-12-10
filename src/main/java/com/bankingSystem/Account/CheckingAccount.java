@@ -1,4 +1,4 @@
-// src/main/java/com/bank/account/CheckingAccount.java
+// src/main/java/com/bankingSystem/Account/CheckingAccount.java
 package com.bankingSystem.Account;
 
 public class CheckingAccount extends Account {
@@ -8,7 +8,6 @@ public class CheckingAccount extends Account {
         super(accountNumber, ownerId);
     }
 
-    // ← نضيف الطريقة المطلوبة
     public boolean canOverdraft(double amount) {
         return (getBalance() + overdraftLimit) >= amount;
     }

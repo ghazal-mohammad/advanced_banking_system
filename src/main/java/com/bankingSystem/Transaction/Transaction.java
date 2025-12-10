@@ -42,6 +42,10 @@ public class Transaction {
 
     public void setStatus(String status) { this.status = status; }
 
+    public boolean isApproved() {
+        return "APPROVED".equals(status) || "COMPLETED".equals(status);
+    }
+
     @Override
     public String toString() {
         return String.format("[%s] %s | %.2f | %s → %s | %s | %s",

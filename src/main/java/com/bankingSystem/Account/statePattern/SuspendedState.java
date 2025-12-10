@@ -1,7 +1,5 @@
+// src/main/java/com/bankingSystem/Account/statePattern/SuspendedState.java
 package com.bankingSystem.Account.statePattern;
-
-// SuspendedState.java
-
 
 import com.bankingSystem.Account.Account;
 
