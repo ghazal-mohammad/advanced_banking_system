@@ -81,18 +81,16 @@ public class TransactionDAO {
 
     public List<Transaction> loadPendingTransactions() {
         List<Transaction> pending = new ArrayList<>();
-        String sql = "SELECT * FROM Transactions WHERE status = 'PENDING_MANAGER_APPROVAL'";
+        String sql = "SELECT * FROM Transactions WHERE status LIKE '%PENDING%' OR status LIKE '%Requires%'";
 
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-
             while (rs.next()) {
                 pending.add(buildTransactionFromResultSet(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return pending;
     }
 
@@ -119,4 +117,27 @@ public class TransactionDAO {
                 rs.getString("description")
         );
     }
+
+
+    public Transaction loadTransactionById(String transactionId) {
+        String sql = "SELECT * FROM Transactions WHERE transactionId = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, transactionId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return buildTransactionFromResultSet(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading transaction by ID: " + transactionId);
+            e.printStackTrace();
+        }
+
+        return null; // Return null if no transaction found with this ID
+    }
+
+
+
 }

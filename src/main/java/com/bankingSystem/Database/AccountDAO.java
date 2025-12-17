@@ -2,6 +2,7 @@ package com.bankingSystem.Database;
 
 import com.bankingSystem.Account.*;
 import com.bankingSystem.Account.statePattern.*;
+import com.bankingSystem.Transaction.Transaction;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -13,8 +14,10 @@ public class AccountDAO {
 
 
     public void saveAccount(Account account) {
-        String sql = "INSERT OR REPLACE INTO Accounts (accountId, accountNumber, balance, creationDate, ownerId, state, type, riskLevel, loanAmount) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = """
+    MERGE INTO Accounts KEY(accountId) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """;
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, account.accountId);
             pstmt.setString(2, account.getAccountNumber());
@@ -24,16 +27,16 @@ public class AccountDAO {
             pstmt.setString(6, account.state.getClass().getSimpleName().replace("State", ""));
             pstmt.setString(7, account.getClass().getSimpleName());
 
-            if (account instanceof InvestmentAccount inv) {
-                pstmt.setString(8, inv.getRiskLevel());
-            } else {
-                pstmt.setString(8, null);
-            }
+//            if (account instanceof InvestmentAccount inv) {
+//                pstmt.setString(8, inv.getRiskLevel());
+//            } else {
+//                pstmt.setString(8, null);
+//            }
 
             if (account instanceof LoanAccount loan) {
-                pstmt.setDouble(9, loan.loanAmount); // افتح المتغير loanAmount بجعله protected أو أضف getter
+                pstmt.setDouble(8, loan.loanAmount); // افتح المتغير loanAmount بجعله protected أو أضف getter
             } else {
-                pstmt.setDouble(9, 0.0);
+                pstmt.setDouble(8, 0.0);
             }
 
             pstmt.executeUpdate();
@@ -149,8 +152,10 @@ public class AccountDAO {
                 account = new LoanAccount(number, owner, loanAmount);
             }
             case "InvestmentAccount" -> {
-                String risk = rs.getString("riskLevel");
-                account = new InvestmentAccount(number, owner, risk);
+
+                account = new InvestmentAccount(number, owner);
+//                String risk = rs.getString("riskLevel");
+//                account = new InvestmentAccount(number, owner, risk);
             }
             default -> throw new IllegalArgumentException("Unknown account type: " + type);
         }
@@ -168,7 +173,8 @@ public class AccountDAO {
             case "Closed" -> new ClosedState();
             default -> new ActiveState();
         });
-
+        List<Transaction> history = new TransactionDAO().loadTransactions(account.getAccountNumber());
+        account.transactionHistory.addAll(history);
         return account;
     }
 }

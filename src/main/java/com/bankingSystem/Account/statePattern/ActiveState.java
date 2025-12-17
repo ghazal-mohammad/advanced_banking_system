@@ -7,7 +7,7 @@ import com.bankingSystem.Transaction.Transaction;
 
 public class ActiveState implements AccountState {
 
-    private static final double MAX_DEPOSIT_LIMIT = 10000.0; // Added: Security validation to prevent money laundering
+    private static final double MAX_DEPOSIT_LIMIT = 1000000.0; // Added: Security validation to prevent money laundering
 
     @Override
     public void deposit(Account account, double amount) {

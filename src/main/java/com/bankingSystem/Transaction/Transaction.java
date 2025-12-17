@@ -53,7 +53,7 @@ public class Transaction {
 
     // ====================== Helper Methods ======================
     public boolean isApproved() {
-        return "APPROVED".equals(status) || "COMPLETED".equals(status);
+        return status != null && (status.startsWith("APPROVED") || "COMPLETED".equals(status));
     }
 
     public boolean isPendingManagerApproval() {

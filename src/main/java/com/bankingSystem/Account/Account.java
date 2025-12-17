@@ -91,21 +91,21 @@ public abstract class Account implements AccountComponent {
                 this.ownerId = newValue;
                 System.out.println("Owner changed: " + old + " → " + newValue);
             }
-            case "risklevel" -> {
-                if (this instanceof InvestmentAccount inv) {
-                    // نستخدم reflection مؤقتًا (لأن riskLevel private)
-                    try {
-                        var f = InvestmentAccount.class.getDeclaredField("riskLevel");
-                        f.setAccessible(true);
-                        f.set(inv, newValue.toUpperCase());
-                        System.out.println("Risk level updated to: " + newValue);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Failed to update risk level", e);
-                    }
-                } else {
-                    throw new IllegalStateException("Only InvestmentAccount has risk level");
-                }
-            }
+//            case "risklevel" -> {
+//                if (this instanceof InvestmentAccount inv) {
+//                    // نستخدم reflection مؤقتًا (لأن riskLevel private)
+//                    try {
+//                        var f = InvestmentAccount.class.getDeclaredField("riskLevel");
+//                        f.setAccessible(true);
+//                        f.set(inv, newValue.toUpperCase());
+//                        System.out.println("Risk level updated to: " + newValue);
+//                    } catch (Exception e) {
+//                        throw new RuntimeException("Failed to update risk level", e);
+//                    }
+//                } else {
+//                    throw new IllegalStateException("Only InvestmentAccount has risk level");
+//                }
+//            }
             case "overdraftlimit" -> {
                 if (this instanceof CheckingAccount chk) {
                     try {

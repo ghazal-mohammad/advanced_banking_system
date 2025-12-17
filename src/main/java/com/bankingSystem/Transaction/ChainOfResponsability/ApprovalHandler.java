@@ -16,9 +16,10 @@ public abstract class ApprovalHandler {
     protected void passToNext(Transaction transaction) {
         if (nextHandler != null) {
             nextHandler.handle(transaction);
-        } else {
-            transaction.setStatus("APPROVED - Auto-approved (small amount)");
-            System.out.println("Transaction auto-approved (≤ 5000)");
         }
+//        else {
+//            transaction.setStatus("APPROVED - Auto-approved (small amount)");
+//            System.out.println("Transaction auto-approved (≤ 5000)");
+//        }
     }
 }

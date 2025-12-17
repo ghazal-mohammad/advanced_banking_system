@@ -10,9 +10,9 @@ public class InvestmentAccount extends Account {
     private String riskLevel; // LOW, MEDIUM, HIGH
     private InterestStrategy interestStrategy; // Strategy Pattern
 
-    public InvestmentAccount(String accountNumber, String ownerId, String riskLevel) {
+    public InvestmentAccount(String accountNumber, String ownerId) {
         super(accountNumber, ownerId);
-        this.riskLevel = riskLevel.toUpperCase();
+//        this.riskLevel = riskLevel.toUpperCase();
         this.interestStrategy = new InvestmentInterest(); // Bind Strategy
     }
 
@@ -23,14 +23,14 @@ public class InvestmentAccount extends Account {
 
         // Simple simulation for risk (random gain/loss based on riskLevel)
         Random random = new Random();
-        double riskMultiplier = switch (riskLevel) {
-            case "LOW" -> 0.5;    // Low risk: small change
-            case "MEDIUM" -> 1.0; // Medium
-            case "HIGH" -> 2.0;   // High: large change
-            default -> 1.0;
-        };
+//        double riskMultiplier = switch (riskLevel) {
+//            case "LOW" -> 0.5;    // Low risk: small change
+//            case "MEDIUM" -> 1.0; // Medium
+//            case "HIGH" -> 2.0;   // High: large change
+//            default -> 1.0;
+//        };
 
-        double volatility = (random.nextDouble() * 0.20 - 0.10) * riskMultiplier; // -10% to +10% adjusted by risk
+        double volatility = (random.nextDouble() * 0.20 - 0.10) ; // -10% to +10% adjusted by risk
         double totalInterest = baseInterest + (balance * volatility);
 
         return totalInterest; // Return the value only, do not modify balance here
@@ -44,6 +44,6 @@ public class InvestmentAccount extends Account {
     @Override
     public String toString() {
         return "InvestmentAccount[" + accountNumber + "] | Balance: " + String.format("%.2f", balance) +
-                " | Risk: " + riskLevel + " | Expected Interest: " + String.format("%.2f", calculateInterest());
+                 " | Expected Interest: " + String.format("%.2f", calculateInterest());
     }
 }

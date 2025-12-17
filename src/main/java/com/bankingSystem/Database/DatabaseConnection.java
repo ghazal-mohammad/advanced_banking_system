@@ -12,7 +12,8 @@ public class DatabaseConnection {
     private DatabaseConnection() {
         try {
             // H2 in-memory DB (يمكن تغيير إلى file:./bank.db للحفظ الدائم)
-            connection = DriverManager.getConnection("jdbc:h2:./data/bank;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE", "sa", "");            initializeDatabase(); // إنشاء الجداول
+            connection = DriverManager.getConnection("jdbc:h2:./data/bank;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE", "sa", "");
+            initializeDatabase(); // إنشاء الجداول
         } catch (SQLException e) {
             throw new RuntimeException("Error connecting to database", e);
         }
@@ -44,7 +45,6 @@ public class DatabaseConnection {
                 "ownerId VARCHAR(255), " +
                 "state VARCHAR(50), " +
                 "type VARCHAR(50), " +
-                "riskLevel VARCHAR(50) NULL, " +
                 "loanAmount DOUBLE NULL" +
                 ")";
         String createTransactions = "CREATE TABLE IF NOT EXISTS Transactions (" +
@@ -62,9 +62,13 @@ public class DatabaseConnection {
         connection.createStatement().execute(createAccounts);
         connection.createStatement().execute(createTransactions);
 
-        // إضافة بيانات افتراضية للاختبار
-        connection.createStatement().execute("INSERT INTO Users (id, username, password, role) VALUES " +
-                "('user1', 'user1', 'pass123', 'Customer'), " +
-                "('admin', 'admin', 'adminpass', 'Admin')");
+        // === SAFE INSERTION OF DEFAULT USERS (only if not exist) ===
+        String mergeDefaultUsers = """
+        MERGE INTO Users KEY(id) VALUES
+        ('default-customer-001', 'customer1', 'pass123', 'Customer'),
+        ('default-admin-001', 'admin', 'adminpass', 'Admin')
+        """;
+
+        connection.createStatement().execute(mergeDefaultUsers);
     }
 }
