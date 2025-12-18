@@ -4,6 +4,8 @@ package com.bankingSystem.Database;
 import com.bankingSystem.user.*;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
     private final Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -66,5 +68,50 @@ MERGE INTO Users KEY(id) VALUES (?, ?, ?, ?)""";
             case MANAGER  -> new Manager(id, username, passwordHash);
             case ADMIN    -> new Admin(id, username, passwordHash);
         };
+    }
+
+    // Add these methods to UserDAO.java
+
+    public List<User> getAllUsersByRole(String roleName) {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE role = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, roleName);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                users.add(buildUserFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading users by role: " + roleName);
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM Users";
+
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                users.add(buildUserFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public void deleteUser(String userId) {
+        String sql = "DELETE FROM Users WHERE id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userId);
+            pstmt.executeUpdate();
+            System.out.println("User deleted: " + userId);
+        } catch (SQLException e) {
+            System.err.println("Error deleting user: " + e.getMessage());
+        }
     }
 }

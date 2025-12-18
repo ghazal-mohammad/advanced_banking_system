@@ -84,7 +84,7 @@ public abstract class Account implements AccountComponent {
     public void persist() {
         new com.bankingSystem.Database.AccountDAO().saveAccount(this);
     }
-    protected void modify(String field, String newValue) {
+    public void modify(String field, String newValue) {
         switch (field.toLowerCase()) {
             case "owner" -> {
                 String old = this.ownerId;
