@@ -1,6 +1,7 @@
 package com.bankingSystem.Notification;
 
 import com.bankingSystem.user.Role;
+
 import java.time.LocalDateTime;
 
 public class NotificationEvent {
@@ -18,9 +19,23 @@ public class NotificationEvent {
         this.timestamp = LocalDateTime.now();
     }
 
-    public NotificationEventType getType() { return type; }
-    public String getMessage() { return message; }
-    public String getTransactionId() { return transactionId; }
-    public Role getTargetRole() { return targetRole; }
-    public LocalDateTime getTimestamp() { return timestamp; }
+    public NotificationEventType getType() {
+        return type;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public Role getTargetRole() {
+        return targetRole;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }

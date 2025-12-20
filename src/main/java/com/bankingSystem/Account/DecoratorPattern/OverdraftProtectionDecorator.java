@@ -14,7 +14,7 @@ public class OverdraftProtectionDecorator extends AccountDecorator {
     public void withdraw(double amount) {
         double allowedAmount = account.getTotalBalance() + withdrawLimit;
         //if(amount > account.getTotalBalance()) throw new InsufficientFunds(account.getTotalBalance(), amount);
-        if(amount > allowedAmount) throw new LimitReached(withdrawLimit, amount);
+        if (amount > allowedAmount) throw new LimitReached(withdrawLimit, amount);
 
         super.withdraw(amount);
     }

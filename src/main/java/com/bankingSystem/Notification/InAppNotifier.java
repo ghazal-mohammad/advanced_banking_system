@@ -22,14 +22,14 @@ public class InAppNotifier implements Observer {
     public void update(NotificationEvent event) {
         inbox.add(event);
         System.out.println("""
-        \n🔔 ===== IN-APP NOTIFICATION =====
-        Time        : %s
-        Target Role : %s
-        Event       : %s
-        Message     : %s
-        Tx ID       : %s
-        =================================
-        """.formatted(
+                \n🔔 ===== IN-APP NOTIFICATION =====
+                Time        : %s
+                Target Role : %s
+                Event       : %s
+                Message     : %s
+                Tx ID       : %s
+                =================================
+                """.formatted(
                 event.getTimestamp(),
                 event.getTargetRole(),
                 event.getType(),

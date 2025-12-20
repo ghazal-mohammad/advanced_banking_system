@@ -1,7 +1,8 @@
 // src/main/java/com/bankingSystem/Database/DatabaseConnection.java
 package com.bankingSystem.Database;
 
-import org.mindrot.jbcrypt.BCrypt;  // ← NEW IMPORT
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -67,9 +68,41 @@ public class DatabaseConnection {
                 "performedAt TIMESTAMP" +
                 ")";
 
+        String createScheduledTransactions = "CREATE TABLE IF NOT EXISTS ScheduledTransactions (" +
+                "scheduledTransactionId VARCHAR(255) PRIMARY KEY, " +
+                "transactionType VARCHAR(50), " +
+                "amount DOUBLE, " +
+                "fromAccountNumber VARCHAR(255), " +
+                "toAccountNumber VARCHAR(255), " +
+                "strategyType VARCHAR(50), " +
+                "intervalMinutes BIGINT, " +
+                "nextExecutionTime TIMESTAMP, " +
+                "createdAt TIMESTAMP, " +
+                "isActive BOOLEAN, " +
+                "createdBy VARCHAR(255), " +
+                "lastExecutionTime TIMESTAMP, " +
+                "executionCount INT" +
+                ")";
+
+        String createSupportTickets = "CREATE TABLE IF NOT EXISTS SupportTickets (" +
+                "ticketId VARCHAR(255) PRIMARY KEY, " +
+                "customerId VARCHAR(255), " +
+                "subject VARCHAR(255), " +
+                "description VARCHAR(1000), " +
+                "status VARCHAR(50), " +
+                "priority VARCHAR(50), " +
+                "createdAt TIMESTAMP, " +
+                "updatedAt TIMESTAMP, " +
+                "assignedTo VARCHAR(255), " +
+                "resolution VARCHAR(1000), " +
+                "category VARCHAR(50)" +
+                ")";
+
         connection.createStatement().execute(createUsers);
         connection.createStatement().execute(createAccounts);
         connection.createStatement().execute(createTransactions);
+        connection.createStatement().execute(createScheduledTransactions);
+        connection.createStatement().execute(createSupportTickets);
 
         // === INSERT DEFAULT USERS WITH HASHED PASSWORDS ===
         String hashedCustomer = BCrypt.hashpw("pass123", BCrypt.gensalt());
@@ -77,12 +110,12 @@ public class DatabaseConnection {
         String hashedManager = BCrypt.hashpw("mgrpass", BCrypt.gensalt());
         String hashedAdmin = BCrypt.hashpw("adminpass", BCrypt.gensalt());
         String mergeDefaultUsers = """
-            MERGE INTO Users KEY(id) VALUES
-            ('default-customer-001', 'customer1', '%s', '0987654321', 'Customer'),
-            ('default-teller-001',   'teller1',    '%s', '0987654322', 'Teller'),
-            ('default-manager-001',  'manager1',   '%s', '0987654333', 'Manager'),
-            ('default-admin-001',    'admin',      '%s', '0987655555', 'Admin')
-            """.formatted(hashedCustomer, hashedTeller, hashedManager, hashedAdmin);
+                MERGE INTO Users KEY(id) VALUES
+                ('default-customer-001', 'customer1', '%s', '0987654321', 'Customer'),
+                ('default-teller-001',   'teller1',    '%s', '0987654322', 'Teller'),
+                ('default-manager-001',  'manager1',   '%s', '0987654333', 'Manager'),
+                ('default-admin-001',    'admin',      '%s', '0987655555', 'Admin')
+                """.formatted(hashedCustomer, hashedTeller, hashedManager, hashedAdmin);
 
         try {
             connection.createStatement().execute(mergeDefaultUsers);

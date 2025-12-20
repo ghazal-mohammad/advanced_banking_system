@@ -1,20 +1,25 @@
 package com.bankingSystem;
 
-import com.bankingSystem.Account.*;
+import com.bankingSystem.Account.Account;
+import com.bankingSystem.Account.CheckingAccount;
 import com.bankingSystem.Account.CompositePattern.AccountComponent;
-import com.bankingSystem.Database.*;
-import com.bankingSystem.user.*;
+import com.bankingSystem.Account.DecoratorPattern.LimitReached;
+import com.bankingSystem.Account.DecoratorPattern.OverdraftProtectionDecorator;
+import com.bankingSystem.Database.AccountDAO;
+import com.bankingSystem.Database.TransactionDAO;
+import com.bankingSystem.Database.UserDAO;
+import com.bankingSystem.Facade.AdministrativeDashboardGUI;
 import com.bankingSystem.Proxy.BankingService;
 import com.bankingSystem.Proxy.RoleBasedAccessProxy;
+import com.bankingSystem.Test.NewFeaturesTest;
 import com.bankingSystem.Transaction.Transaction;
-
-// Imports needed for the Decorator Demo
-import com.bankingSystem.Account.DecoratorPattern.OverdraftProtectionDecorator;
-import com.bankingSystem.Account.DecoratorPattern.LimitReached;
+import com.bankingSystem.user.Customer;
+import com.bankingSystem.user.Role;
+import com.bankingSystem.user.User;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Scanner;
 
 public class CoreApplication {
 
@@ -22,17 +27,6 @@ public class CoreApplication {
     private static final UserDAO userDAO = new UserDAO();
     private static final AccountDAO accountDAO = new AccountDAO();
     private static final TransactionDAO transactionDAO = new TransactionDAO();
-
-    // Colors for pretty console
-    private static class Colors {
-        public static final String RESET = "\u001B[0m";
-        public static final String CYAN = "\u001B[36m";
-        public static final String GREEN = "\u001B[32m";
-        public static final String YELLOW = "\u001B[33m";
-        public static final String RED = "\u001B[31m";
-        public static final String BOLD = "\u001B[1m";
-        public static final String PURPLE = "\u001B[35m";
-    }
 
     private static void printHeader(String text) {
         String line = "═".repeat(text.length() + 10);
@@ -49,9 +43,9 @@ public class CoreApplication {
             System.out.println("2. Teller");
             System.out.println("3. Manager");
             System.out.println("4. Exit");
-            // --- CHANGE #1: Updated menu item to '5' ---
             System.out.println(Colors.PURPLE + "5. Run Decorator Pattern Demo" + Colors.RESET);
-            System.out.print("Choose option (1-5): "); // Updated prompt
+            System.out.println(Colors.PURPLE + "6. Test New Features (Admin Dashboard, Scheduled Transactions, Support Tickets)" + Colors.RESET);
+            System.out.print("Choose option (1-6): ");
             String roleChoice = scanner.nextLine().trim();
 
             if (roleChoice.equals("4")) {
@@ -59,10 +53,16 @@ public class CoreApplication {
                 break;
             }
 
-            // --- CHANGE #2: Updated trigger logic to check for '5' ---
             if (roleChoice.equals("5")) {
                 runDecoratorPatternDemo();
                 continue; // Go back to the main menu after the demo
+            }
+
+            if (roleChoice.equals("6")) {
+                runNewFeaturesTest();
+                System.out.println("\n" + Colors.YELLOW + "Press Enter to return to main menu..." + Colors.RESET);
+                scanner.nextLine();
+                continue; // Go back to the main menu after the test
             }
 
             Role selectedRole = switch (roleChoice) {
@@ -80,11 +80,17 @@ public class CoreApplication {
             System.out.print("Enter phone number: ");
             String phone = scanner.nextLine().trim();
             System.out.print("Enter password: ");
-            String password = scanner.nextLine();
+            String password = scanner.nextLine().trim();
 
             User user = userDAO.loadUserByPhoneAndPassword(phone, password);
-            if (user == null || user.getRole() != selectedRole) {
-                System.out.println(Colors.RED + "Login failed: Invalid credentials or wrong role.\n" + Colors.RESET);
+            if (user == null) {
+                System.out.println(Colors.RED + "Login failed: Invalid phone number or password.\n" + Colors.RESET);
+                System.out.println(Colors.YELLOW + "Hint: Check your phone number and password. Make sure no extra spaces.\n" + Colors.RESET);
+                continue;
+            }
+
+            if (user.getRole() != selectedRole) {
+                System.out.println(Colors.RED + "Login failed: Wrong role selected. You selected " + selectedRole.getDisplayName() + " but account is " + user.getRole().getDisplayName() + ".\n" + Colors.RESET);
                 continue;
             }
 
@@ -96,7 +102,6 @@ public class CoreApplication {
     }
 
     private static void roleMenuLoop(BankingService service, User currentUser) {
-        // ... (This part of the code remains unchanged)
         while (true) {
             printHeader(currentUser.getRole().getDisplayName().toUpperCase() + " MENU");
 
@@ -128,11 +133,6 @@ public class CoreApplication {
         }
     }
 
-    // =================================================================
-    // The rest of the file (menus, actions, and the demo method) remains unchanged.
-    // ...
-    // =================================================================
-
     // ==================== MENUS ====================
     private static void customerMenu() {
         System.out.println("1. View transaction history");
@@ -141,6 +141,11 @@ public class CoreApplication {
         System.out.println("4. Transfer money");
         System.out.println("5. View my accounts");
     }
+
+    // =================================================================
+    // The rest of the file (menus, actions, and the demo method) remains unchanged.
+    // ...
+    // =================================================================
 
     private static void tellerMenu() {
         System.out.println("1. Create new customer and account");
@@ -158,6 +163,7 @@ public class CoreApplication {
         System.out.println("5. Daily transaction report per account");
         System.out.println("6. Weekly transaction report per account");
         System.out.println("7. All transactions report");
+        System.out.println(Colors.PURPLE + "8. Open Administrative Dashboard (GUI)" + Colors.RESET);
     }
 
     // ==================== CUSTOMER ACTIONS ====================
@@ -236,10 +242,7 @@ public class CoreApplication {
         System.out.print("Amount: ");
         double amount = Double.parseDouble(scanner.nextLine());
 
-        service.performTransaction(user.getUserId(),
-                type.equals("WITHDRAW") || type.equals("TRANSFER") ? primary : null,
-                type.equals("DEPOSIT") || type.equals("TRANSFER") ? (to != null ? to : primary) : null,
-                amount, type);
+        service.performTransaction(user.getUserId(), type.equals("WITHDRAW") || type.equals("TRANSFER") ? primary : null, type.equals("DEPOSIT") || type.equals("TRANSFER") ? (to != null ? to : primary) : null, amount, type);
         System.out.println();
     }
 
@@ -384,6 +387,7 @@ public class CoreApplication {
             case "5" -> dailyReportPerAccount();
             case "6" -> weeklyReportPerAccount();
             case "7" -> viewAllTransactions(service);
+            case "8" -> openAdministrativeDashboardGUI();
             default -> System.out.println(Colors.RED + "Invalid choice.\n" + Colors.RESET);
         }
     }
@@ -464,21 +468,12 @@ public class CoreApplication {
     }
 
 
-    // =================================================================
-    // ==================== NEW DECORATOR PATTERN DEMO ===================
-    // =================================================================
-    /**
-     * This method is a self-contained demonstration for the Decorator Pattern.
-     * It shows how an account can be "decorated" with new functionality (Overdraft)
-     * at runtime without changing the original Account class.
-     */
     private static void runDecoratorPatternDemo() {
         printHeader("DECORATOR PATTERN DEMO");
 
         System.out.println(Colors.YELLOW + "This is a self-contained demo and does not affect the main database." + Colors.RESET);
 
         System.out.println("\n===== 1. CREATING A BASE ACCOUNT =====");
-        // We use a real CheckingAccount from the project for this demo.
         AccountComponent account = new CheckingAccount("DEMO-123", "demo-user");
         System.out.println("Base CheckingAccount created.");
         account.deposit(1000);
@@ -519,5 +514,57 @@ public class CoreApplication {
         System.out.println("===== DEMO COMPLETE =====");
         System.out.println("Press Enter to return to the main menu...");
         scanner.nextLine();
+    }
+
+
+    // =================================================================
+    // ==================== NEW DECORATOR PATTERN DEMO ===================
+    // =================================================================
+
+    /**
+     * اختبار الوظائف الجديدة:
+     * 1. Administrative Dashboard Facade
+     * 2. Scheduled Transactions
+     * 3. Customer Support Tickets (Chain of Responsibility)
+     */
+    private static void runNewFeaturesTest() {
+        printHeader("NEW FEATURES TEST");
+
+        System.out.println(Colors.YELLOW + "This will test:" + Colors.RESET);
+        System.out.println("1. Administrative Dashboard Facade (Facade Pattern)");
+        System.out.println("2. Scheduled Transactions (Strategy Pattern)");
+        System.out.println("3. Customer Support Tickets (Chain of Responsibility Pattern)");
+        System.out.println();
+
+        NewFeaturesTest.main(new String[0]);
+    }
+
+    // =================================================================
+    // ==================== NEW FEATURES TEST ===================
+    // =================================================================
+
+    private static void openAdministrativeDashboardGUI() {
+        System.out.println(Colors.GREEN + "Opening Administrative Dashboard GUI..." + Colors.RESET);
+        System.out.println(Colors.YELLOW + "The GUI window will open separately. You can continue using the console." + Colors.RESET);
+
+        new Thread(() -> {
+            try {
+                AdministrativeDashboardGUI gui = new AdministrativeDashboardGUI();
+                gui.setVisible(true);
+            } catch (Exception e) {
+                System.out.println(Colors.RED + "Error opening GUI: " + e.getMessage() + Colors.RESET);
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private static class Colors {
+        public static final String RESET = "\u001B[0m";
+        public static final String CYAN = "\u001B[36m";
+        public static final String GREEN = "\u001B[32m";
+        public static final String YELLOW = "\u001B[33m";
+        public static final String RED = "\u001B[31m";
+        public static final String BOLD = "\u001B[1m";
+        public static final String PURPLE = "\u001B[35m";
     }
 }

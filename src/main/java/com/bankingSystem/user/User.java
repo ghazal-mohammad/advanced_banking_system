@@ -1,8 +1,7 @@
-// src/main/java/com/bankingSystem/user/User.java
 package com.bankingSystem.user;
 
 import com.bankingSystem.Database.UserDAO;
-import org.mindrot.jbcrypt.BCrypt;  // ← NEW IMPORT
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -39,13 +38,26 @@ public abstract class User {
     }
 
     // Getters
-    public String getUserId() { return userId; }
-    public String getUsername() { return username; }
-    public Role getRole() { return role; }
-    public String getPhoneNumber() { return phoneNumber; }
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
     public String getPasswordHash() {
         return passwordHash;
     }
+
     public void persist() {
         new UserDAO().saveUser(this);
     }

@@ -4,6 +4,7 @@ package com.bankingSystem.Account.CompositePattern;
 public interface AccountComponent {
 
     void showDetails();
+
     double getTotalBalance();
 
     // For Composite only
@@ -14,6 +15,7 @@ public interface AccountComponent {
     default void remove(AccountComponent component) {
         throw new UnsupportedOperationException("Cannot remove sub-account from this type");
     }
+
     public default void deposit(double amount) {
         throw new UnsupportedOperationException("Deposit is not supported by this component");
     }

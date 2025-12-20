@@ -12,7 +12,8 @@ public class ActiveState implements AccountState {
     @Override
     public void deposit(Account account, double amount) {
         if (amount <= 0) throw new IllegalArgumentException("Deposit amount must be positive");
-        if (amount > MAX_DEPOSIT_LIMIT) throw new IllegalArgumentException("Deposit exceeds limit: " + MAX_DEPOSIT_LIMIT);
+        if (amount > MAX_DEPOSIT_LIMIT)
+            throw new IllegalArgumentException("Deposit exceeds limit: " + MAX_DEPOSIT_LIMIT);
         account.setBalance(account.getBalance() + amount);
         account.addTransaction(new Transaction("Deposit", amount));
         System.out.printf("Deposit successful: +%.2f | New balance: %.2f%n", amount, account.getBalance());

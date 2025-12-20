@@ -2,8 +2,9 @@
 package com.bankingSystem.Proxy;
 
 import com.bankingSystem.Account.Account;
-import com.bankingSystem.user.*;
 import com.bankingSystem.Transaction.Transaction;
+import com.bankingSystem.user.Role;
+import com.bankingSystem.user.User;
 
 import java.util.List;
 

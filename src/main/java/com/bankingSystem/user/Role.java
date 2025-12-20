@@ -13,10 +13,6 @@ public enum Role {
         this.displayName = displayName;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
     public static Role fromString(String text) {
         for (Role r : Role.values()) {
             if (r.name().equalsIgnoreCase(text) || r.displayName.equalsIgnoreCase(text)) {
@@ -24,5 +20,9 @@ public enum Role {
             }
         }
         throw new IllegalArgumentException("No role with text " + text + " found");
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 }

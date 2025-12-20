@@ -17,11 +17,11 @@ public class TransactionDAO {
      */
     public void saveTransaction(Transaction tx) {
         String sql = """
-            INSERT INTO Transactions 
-            (transactionId, type, amount, timestamp, fromAccount, toAccount, 
-             status, description, performedBy, performedAt) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """;
+                INSERT INTO Transactions 
+                (transactionId, type, amount, timestamp, fromAccount, toAccount, 
+                 status, description, performedBy, performedAt) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, tx.getTransactionId());
             pstmt.setString(2, tx.getType());
@@ -43,10 +43,10 @@ public class TransactionDAO {
     public List<Transaction> loadTransactions(String accountNumber) {
         List<Transaction> transactions = new ArrayList<>();
         String sql = """
-            SELECT * FROM Transactions 
-            WHERE fromAccount = ? OR toAccount = ?
-            ORDER BY performedAt DESC
-            """;
+                SELECT * FROM Transactions 
+                WHERE fromAccount = ? OR toAccount = ?
+                ORDER BY performedAt DESC
+                """;
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, accountNumber);
@@ -133,11 +133,11 @@ public class TransactionDAO {
     public List<Transaction> getDailyTransactionsForAccount(String accountNumber) {
         List<Transaction> transactions = new ArrayList<>();
         String sql = """
-            SELECT * FROM Transactions 
-            WHERE (fromAccount = ? OR toAccount = ?) 
-            AND DATE(performedAt) = CURRENT_DATE
-            ORDER BY performedAt DESC
-            """;
+                SELECT * FROM Transactions 
+                WHERE (fromAccount = ? OR toAccount = ?) 
+                AND DATE(performedAt) = CURRENT_DATE
+                ORDER BY performedAt DESC
+                """;
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, accountNumber);
@@ -159,11 +159,11 @@ public class TransactionDAO {
     public List<Transaction> getWeeklyTransactionsForAccount(String accountNumber) {
         List<Transaction> transactions = new ArrayList<>();
         String sql = """
-            SELECT * FROM Transactions 
-            WHERE (fromAccount = ? OR toAccount = ?) 
-            AND performedAt >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
-            ORDER BY performedAt DESC
-            """;
+                SELECT * FROM Transactions 
+                WHERE (fromAccount = ? OR toAccount = ?) 
+                AND performedAt >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+                ORDER BY performedAt DESC
+                """;
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, accountNumber);

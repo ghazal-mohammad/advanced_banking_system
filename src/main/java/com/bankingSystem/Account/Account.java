@@ -1,4 +1,3 @@
-// src/main/java/com/bankingSystem/Account/Account.java
 package com.bankingSystem.Account;
 
 import com.bankingSystem.Account.CompositePattern.AccountComponent;
@@ -31,7 +30,6 @@ public abstract class Account implements AccountComponent {
         this.state = new ActiveState();
     }
 
-    // Abstract method - must be overridden in subclasses to return double
     public abstract double calculateInterest();
 
     // State Pattern methods
@@ -43,45 +41,69 @@ public abstract class Account implements AccountComponent {
         state.withdraw(this, amount);
     }
 
-    public void freeze() { state.freeze(this); }
-    public void suspend() { state.suspend(this); }
-    public void activate() { state.activate(this); }
-    public void close() { state.close(this); }
+    public void freeze() {
+        state.freeze(this);
+    }
 
-    // Transaction methods
+    public void suspend() {
+        state.suspend(this);
+    }
+
+    public void activate() {
+        state.activate(this);
+    }
+
+    public void close() {
+        state.close(this);
+    }
+
     public void addTransaction(Transaction transaction) {
         transactionHistory.add(transaction);
     }
 
-    // Observer stub (for Notification - can be extended later for full Observer Pattern)
     public void notifyObservers(String message) {
         System.out.println("Notification: " + message);
     }
 
-    // Getters/Setters
-    public String getAccountNumber() { return accountNumber; }
-    public double getBalance() { return balance; }
-    public void setBalance(double balance) { this.balance = balance; }
-    public void setState(AccountState state) { this.state = state; }
-    public List<Transaction> getTransactionHistory() { return new ArrayList<>(transactionHistory); }
-    public void setInterestStrategy(InterestStrategy strategy) { this.interestStrategy = strategy; }
-    public String getOwnerId() { return ownerId; }
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    public void setState(AccountState state) {
+        this.state = state;
+    }
+
+    public List<Transaction> getTransactionHistory() {
+        return new ArrayList<>(transactionHistory);
+    }
+
+    public void setInterestStrategy(InterestStrategy strategy) {
+        this.interestStrategy = strategy;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
 
     // ←←←←← NEW METHOD TO FIX THE COMPILATION ERRORS ←←←←←
-    /**
-     * Returns the account type as a clean string (e.g., "SavingsAccount", "CheckingAccount")
-     * Used in manager reports and console display
-     */
+
+
     public String getType() {
         String fullName = this.getClass().getSimpleName();
-        // Remove "Account" suffix if present (e.g., SavingsAccount → Savings)
         if (fullName.endsWith("Account")) {
             return fullName.substring(0, fullName.length() - 7);
         }
         return fullName;
     }
 
-    // Composite methods
     public void showDetails() {
         System.out.printf("%s | %s | Balance: %.2f | Status: %s%n",
                 getType(), // ← Now uses getType() instead of getClass().getSimpleName()
@@ -89,7 +111,9 @@ public abstract class Account implements AccountComponent {
                 state.getClass().getSimpleName().replace("State", ""));
     }
 
-    public double getTotalBalance() { return balance; }
+    public double getTotalBalance() {
+        return balance;
+    }
 
     @Override
     public String toString() {

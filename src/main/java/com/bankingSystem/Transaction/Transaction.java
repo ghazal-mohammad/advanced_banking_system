@@ -56,10 +56,6 @@ public class Transaction {
         this(type, amount, fromAccount, toAccount, null);
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public boolean isApproved() {
         return status != null && (status.startsWith("APPROVED") || "COMPLETED".equals(status));
     }
@@ -69,16 +65,49 @@ public class Transaction {
     }
 
     // Getters
-    public String getTransactionId() { return transactionId; }
-    public String getType() { return type; }
-    public double getAmount() { return amount; }
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public String getFromAccount() { return fromAccount; }
-    public String getToAccount() { return toAccount; }
-    public String getStatus() { return status; }
-    public String getDescription() { return description; }
-    public String getPerformedBy() { return performedBy; }
-    public LocalDateTime getPerformedAt() { return performedAt; }
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public String getFromAccount() {
+        return fromAccount;
+    }
+
+    public String getToAccount() {
+        return toAccount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getPerformedBy() {
+        return performedBy;
+    }
+
+    public LocalDateTime getPerformedAt() {
+        return performedAt;
+    }
 
     @Override
     public String toString() {

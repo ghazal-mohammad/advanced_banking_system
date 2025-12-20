@@ -64,10 +64,10 @@ public class UserDAO {
         Role role = Role.fromString(roleStr);
 
         return switch (role) {
-            case CUSTOMER -> new Customer(id, username, passwordHash,phone);
-            case TELLER   -> new Teller(id, username, passwordHash,phone);
-            case MANAGER  -> new Manager(id, username, passwordHash,phone);
-            case ADMIN    -> new Admin(id, username, passwordHash,phone);
+            case CUSTOMER -> new Customer(id, username, passwordHash, phone);
+            case TELLER -> new Teller(id, username, passwordHash, phone);
+            case MANAGER -> new Manager(id, username, passwordHash, phone);
+            case ADMIN -> new Admin(id, username, passwordHash, phone);
         };
     }
 
@@ -150,20 +150,31 @@ public class UserDAO {
 
     // Add this method to UserDAO.java
     public User loadUserByPhoneAndPassword(String phoneNumber, String plainPassword) {
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            return null;
+        }
+
         String sql = "SELECT * FROM Users WHERE phoneNumber = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, phoneNumber);
+            pstmt.setString(1, phoneNumber.trim());
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     User user = buildUserFromResultSet(rs);
                     // Check password using your hash method
-                    if (user.checkPassword(plainPassword)) {
+                    if (user != null && user.checkPassword(plainPassword)) {
                         return user;
+                    } else {
+                        System.err.println("Password check failed for phone: " + phoneNumber);
                     }
+                } else {
+                    System.err.println("No user found with phone: " + phoneNumber);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error during login by phone: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Unexpected error during login: " + e.getMessage());
             e.printStackTrace();
         }
         return null; // Invalid phone or password

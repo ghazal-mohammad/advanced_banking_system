@@ -3,8 +3,14 @@ package com.bankingSystem.Transaction;
 import com.bankingSystem.Account.Account;
 import com.bankingSystem.Database.AccountDAO;
 import com.bankingSystem.Database.TransactionDAO;
-import com.bankingSystem.Notification.*;
-import com.bankingSystem.Transaction.ChainOfResponsability.*;
+import com.bankingSystem.Notification.NotificationEvent;
+import com.bankingSystem.Notification.NotificationEventType;
+import com.bankingSystem.Notification.Observer;
+import com.bankingSystem.Notification.Subject;
+import com.bankingSystem.Transaction.ChainOfResponsability.ApprovalHandler;
+import com.bankingSystem.Transaction.ChainOfResponsability.LargeTransactionHandler;
+import com.bankingSystem.Transaction.ChainOfResponsability.ManagerApprovalHandler;
+import com.bankingSystem.Transaction.ChainOfResponsability.SmallTransactionHandler;
 import com.bankingSystem.user.Role;
 
 import java.util.ArrayList;
@@ -14,20 +20,20 @@ public class TransactionService implements Subject {
 
     // ✅ Singleton
     private static final TransactionService INSTANCE = new TransactionService();
-
-    public static TransactionService getInstance() {
-        return INSTANCE;
-    }
-
-    private ApprovalHandler approvalChain;
     private final TransactionDAO transactionDAO = new TransactionDAO();
     private final AccountDAO accountDAO = new AccountDAO();
-
     private final List<Observer> observers = new ArrayList<>();
+    // ✅ Concurrent transaction tracking (for Administrative Dashboard)
+    private final java.util.concurrent.atomic.AtomicInteger concurrentTransactionCount = new java.util.concurrent.atomic.AtomicInteger(0);
+    private ApprovalHandler approvalChain;
 
     // ✅ constructor صار private
     public TransactionService() {
         buildApprovalChain();
+    }
+
+    public static TransactionService getInstance() {
+        return INSTANCE;
     }
 
     private void buildApprovalChain() {
@@ -88,52 +94,71 @@ public class TransactionService implements Subject {
     }
 
     public void processTransaction(Account from, Account to, double amount, String type) {
-        Transaction tx = new Transaction(type, amount,
-                from != null ? from.getAccountNumber() : null,
-                to != null ? to.getAccountNumber() : null);
+        // Increment concurrent transaction count
+        concurrentTransactionCount.incrementAndGet();
 
-        approvalChain.handle(tx);
+        try {
+            Transaction tx = new Transaction(type, amount,
+                    from != null ? from.getAccountNumber() : null,
+                    to != null ? to.getAccountNumber() : null);
 
-        if (tx.isApproved()) {
-            // execute
-            switch (type) {
-                case "DEPOSIT" -> to.deposit(amount);
-                case "WITHDRAW" -> from.withdraw(amount);
-                case "TRANSFER" -> { from.withdraw(amount); to.deposit(amount); }
-                default -> throw new IllegalArgumentException("Unknown transaction type: " + type);
+            approvalChain.handle(tx);
+
+            if (tx.isApproved()) {
+                // execute
+                switch (type) {
+                    case "DEPOSIT" -> to.deposit(amount);
+                    case "WITHDRAW" -> from.withdraw(amount);
+                    case "TRANSFER" -> {
+                        from.withdraw(amount);
+                        to.deposit(amount);
+                    }
+                    default -> throw new IllegalArgumentException("Unknown transaction type: " + type);
+                }
+
+                tx.setStatus("COMPLETED");
+
+                if (from != null) from.addTransaction(tx);
+                if (to != null) to.addTransaction(tx);
+
+                if (from != null) from.persist();
+                if (to != null) to.persist();
+
+                // notify customer: completed
+                notifyObservers(new NotificationEvent(
+                        NotificationEventType.TRANSACTION_COMPLETED,
+                        "Transaction completed successfully (" + type + ", " + amount + ")",
+                        tx.getTransactionId(),
+                        Role.CUSTOMER
+                ));
+
+            } else {
+                // Make pending explicit (حتى ما نضيع بين statuses)
+                tx.setStatus("PENDING_MANAGER_APPROVAL");
+
+                // notify manager: pending approval
+                notifyObservers(new NotificationEvent(
+                        NotificationEventType.TRANSACTION_PENDING_MANAGER_APPROVAL,
+                        "Transaction requires manager approval (Amount: " + amount + ")",
+                        tx.getTransactionId(),
+                        Role.MANAGER
+                ));
             }
 
-            tx.setStatus("COMPLETED");
-
-            if (from != null) from.addTransaction(tx);
-            if (to != null) to.addTransaction(tx);
-
-            if (from != null) from.persist();
-            if (to != null) to.persist();
-
-            // notify customer: completed
-            notifyObservers(new NotificationEvent(
-                    NotificationEventType.TRANSACTION_COMPLETED,
-                    "Transaction completed successfully (" + type + ", " + amount + ")",
-                    tx.getTransactionId(),
-                    Role.CUSTOMER
-            ));
-
-        } else {
-            // Make pending explicit (حتى ما نضيع بين statuses)
-            tx.setStatus("PENDING_MANAGER_APPROVAL");
-
-            // notify manager: pending approval
-            notifyObservers(new NotificationEvent(
-                    NotificationEventType.TRANSACTION_PENDING_MANAGER_APPROVAL,
-                    "Transaction requires manager approval (Amount: " + amount + ")",
-                    tx.getTransactionId(),
-                    Role.MANAGER
-            ));
+            // always save for audit + pending workflow
+            transactionDAO.saveTransaction(tx);
+        } finally {
+            // Decrement concurrent transaction count
+            concurrentTransactionCount.decrementAndGet();
         }
+    }
 
-        // always save for audit + pending workflow
-        transactionDAO.saveTransaction(tx);
+    /**
+     * Get the current number of concurrent transactions
+     * Used by Administrative Dashboard Facade
+     */
+    public int getConcurrentTransactionCount() {
+        return concurrentTransactionCount.get();
     }
 
     public void executeApprovedTransaction(String transactionId) {
@@ -151,7 +176,10 @@ public class TransactionService implements Subject {
             switch (tx.getType()) {
                 case "DEPOSIT" -> to.deposit(tx.getAmount());
                 case "WITHDRAW" -> from.withdraw(tx.getAmount());
-                case "TRANSFER" -> { from.withdraw(tx.getAmount()); to.deposit(tx.getAmount()); }
+                case "TRANSFER" -> {
+                    from.withdraw(tx.getAmount());
+                    to.deposit(tx.getAmount());
+                }
             }
 
             transactionDAO.updateTransactionStatus(transactionId, "COMPLETED");
@@ -263,7 +291,7 @@ public class TransactionService implements Subject {
 //        }
 //    }
 
-    // === طريقة إضافية للموافقة اليدوية من المدير (تُستدعى من Bank) ===
+// === طريقة إضافية للموافقة اليدوية من المدير (تُستدعى من Bank) ===
 //    public void approvePendingTransaction(String transactionId, boolean approve) {
 //        Transaction tx = transactionDAO.loadTransactions(null).stream()
 //                .filter(t -> t.getTransactionId().equals(transactionId))

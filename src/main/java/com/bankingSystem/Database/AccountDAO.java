@@ -1,7 +1,10 @@
 package com.bankingSystem.Database;
 
 import com.bankingSystem.Account.*;
-import com.bankingSystem.Account.statePattern.*;
+import com.bankingSystem.Account.statePattern.ActiveState;
+import com.bankingSystem.Account.statePattern.ClosedState;
+import com.bankingSystem.Account.statePattern.FrozenState;
+import com.bankingSystem.Account.statePattern.SuspendedState;
 import com.bankingSystem.Transaction.Transaction;
 
 import java.sql.*;
@@ -15,9 +18,9 @@ public class AccountDAO {
 
     public void saveAccount(Account account) {
         String sql = """
-    MERGE INTO Accounts KEY(accountId) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    """;
+                MERGE INTO Accounts KEY(accountId) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, account.accountId);
             pstmt.setString(2, account.getAccountNumber());

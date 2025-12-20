@@ -30,7 +30,7 @@ public class InvestmentAccount extends Account {
 //            default -> 1.0;
 //        };
 
-        double volatility = (random.nextDouble() * 0.20 - 0.10) ; // -10% to +10% adjusted by risk
+        double volatility = (random.nextDouble() * 0.20 - 0.10); // -10% to +10% adjusted by risk
         double totalInterest = baseInterest + (balance * volatility);
 
         return totalInterest; // Return the value only, do not modify balance here
@@ -44,6 +44,6 @@ public class InvestmentAccount extends Account {
     @Override
     public String toString() {
         return "InvestmentAccount[" + accountNumber + "] | Balance: " + String.format("%.2f", balance) +
-                 " | Expected Interest: " + String.format("%.2f", calculateInterest());
+                " | Expected Interest: " + String.format("%.2f", calculateInterest());
     }
 }

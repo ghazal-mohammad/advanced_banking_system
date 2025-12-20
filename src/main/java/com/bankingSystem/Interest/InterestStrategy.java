@@ -4,6 +4,7 @@ package com.bankingSystem.Interest;
 public interface InterestStrategy {
     /**
      * يحسب الفائدة بناءً على الرصيد الحالي للحساب.
+     *
      * @param balance الرصيد الحالي للحساب.
      * @return قيمة الفائدة المحسوبة (double).
      */

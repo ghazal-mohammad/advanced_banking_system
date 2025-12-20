@@ -1,4 +1,5 @@
 package com.bankingSystem.Notification;
+
 import com.bankingSystem.user.Role;
 
 public class EmailNotifier implements Observer {
@@ -17,14 +18,14 @@ public class EmailNotifier implements Observer {
     @Override
     public void update(NotificationEvent event) {
         System.out.println("""
-        \n📧 ===== EMAIL NOTIFICATION =====
-        Time        : %s
-        Target Role : %s
-        Event       : %s
-        Message     : %s
-        Tx ID       : %s
-        ================================
-        """.formatted(
+                \n📧 ===== EMAIL NOTIFICATION =====
+                Time        : %s
+                Target Role : %s
+                Event       : %s
+                Message     : %s
+                Tx ID       : %s
+                ================================
+                """.formatted(
                 event.getTimestamp(),
                 event.getTargetRole(),
                 event.getType(),

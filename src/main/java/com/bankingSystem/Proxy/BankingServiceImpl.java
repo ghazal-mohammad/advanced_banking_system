@@ -2,14 +2,20 @@
 package com.bankingSystem.Proxy;
 
 import com.bankingSystem.Account.*;
-import com.bankingSystem.Database.*;
-import com.bankingSystem.user.*;
-import com.bankingSystem.Transaction.*;
+import com.bankingSystem.Database.AccountDAO;
+import com.bankingSystem.Database.TransactionDAO;
+import com.bankingSystem.Database.UserDAO;
+import com.bankingSystem.Transaction.Transaction;
+import com.bankingSystem.Transaction.TransactionService;
+import com.bankingSystem.user.Teller;
+import com.bankingSystem.user.User;
 
 import java.util.List;
 
 public class BankingServiceImpl implements BankingService {
     private static TransactionService transactionService = TransactionService.getInstance();
+    // ← NEW: Generate short IDs like SAV-001
+    private static int counter = 1;
     private final AccountDAO accountDAO = new AccountDAO();
     private final UserDAO userDAO = new UserDAO();
     private final TransactionDAO transactionDAO = new TransactionDAO();
@@ -51,8 +57,6 @@ public class BankingServiceImpl implements BankingService {
         return account;
     }
 
-    // ← NEW: Generate short IDs like SAV-001
-    private static int counter = 1;
     private String generateShortId(String prefix) {
         return String.format("%s-%03d", prefix, counter++);
     }

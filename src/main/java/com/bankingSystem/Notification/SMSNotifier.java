@@ -18,14 +18,14 @@ public class SMSNotifier implements Observer {
     @Override
     public void update(NotificationEvent event) {
         System.out.println("""
-        \n📱 ===== SMS NOTIFICATION =====
-        Time        : %s
-        Target Role : %s
-        Event       : %s
-        Message     : %s
-        Tx ID       : %s
-        ===============================
-        """.formatted(
+                \n📱 ===== SMS NOTIFICATION =====
+                Time        : %s
+                Target Role : %s
+                Event       : %s
+                Message     : %s
+                Tx ID       : %s
+                ===============================
+                """.formatted(
                 event.getTimestamp(),
                 event.getTargetRole(),
                 event.getType(),
